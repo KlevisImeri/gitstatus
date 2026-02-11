@@ -2,12 +2,12 @@
 # Project-specific Build Artifacts
 # ==============================================================================
 # Main binary
-gitstatus
+/gitstatus
 *.exe
 *.out
 
 # Binary in cmd directory (if built locally)
-cmd/gitstatus/gitstatus
+/cmd/gitstatus/gitstatus
 
 # ==============================================================================
 # Go-specific Files

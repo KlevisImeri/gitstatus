@@ -1,6 +1,13 @@
-# Git Status Scanner
+# Git Repo Scanner
 
-A Go CLI tool that traverses directories to find Git repositories and lists all branches that are out of sync with their remote origins in a simple file-list format.
+A powerful Go CLI tool that recursively scans directories to discover Git
+repositories and provides comprehensive branch synchronization status. It
+identifies repositories with unsynced branches and uncommitted changes,
+displaying results in a clean, file-list format perfect for quick assessments
+of many Git projects in a folder.
+
+> "I simply needed a way to check all my projects at the end of the day to see
+> if anything was uncommitted, unpushed, or needed to be pulled and merged."
 
 ## Features
 
