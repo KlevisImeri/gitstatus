@@ -27,13 +27,13 @@ of many Git projects in a folder.
 ## Installation
 
 ```bash
-go build -o gitstatus ./cmd/gitstatus
+go build
 ```
 
 Or install to your PATH:
 
 ```bash
-go install ./cmd/gitstatus
+go install
 ```
 
 ## Usage
