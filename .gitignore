@@ -1,0 +1,181 @@
+# ==============================================================================
+# Project-specific Build Artifacts
+# ==============================================================================
+# Main binary
+gitstatus
+*.exe
+*.out
+
+# Binary in cmd directory (if built locally)
+cmd/gitstatus/gitstatus
+
+# ==============================================================================
+# Go-specific Files
+# ==============================================================================
+# Test binaries and coverage
+*.test
+*.prof
+coverage.out
+*.cover
+
+# Dependency management
+vendor/
+*.sum
+
+# Go workspace files (Go 1.18+)
+go.work
+go.work.sum
+
+# ==============================================================================
+# Test Environment & Logs
+# ==============================================================================
+# Test environment with git repositories
+test_env/
+
+# Log files
+*.log
+*.log.*
+logs/
+
+# ==============================================================================
+# IDE & Editor Files
+# ==============================================================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains/GoLand
+.idea/
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+vim/tmp/
+vim/bundle/
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.sublime-*
+*.sublime-project
+*.sublime-workspace
+
+# ==============================================================================
+# macOS-specific Files
+# ==============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# ==============================================================================
+# Windows-specific Files
+# ==============================================================================
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ==============================================================================
+# Linux-specific Files
+# ==============================================================================
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==============================================================================
+# Environment & Configuration Files
+# ==============================================================================
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Local configuration overrides
+config.json.local
+settings.json.local
+*.local.json
+
+# ==============================================================================
+# Backup & Temporary Files
+# ==============================================================================
+# Backup files
+*.bak
+*.backup
+*.tmp
+*.temp
+*.orig
+*.rej
+~$*
+
+# Office temporary files
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# ==============================================================================
+# Archive Files (optional - uncomment if you don't want to track archives)
+# ==============================================================================
+# *.zip
+# *.tar.gz
+# *.tar.bz2
+# *.rar
+# *.7z
+
+# ==============================================================================
+# Additional Development Files
+# ==============================================================================
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Compiled documentation
+docs/_build/
+
+# Security and credential files
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+*.pem
+
+# Docker
+.dockerignore.local
