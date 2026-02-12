@@ -21,14 +21,14 @@ const (
 func PrintResults(results []types.RepoResult, cfg types.Config, logger *logger.Logger) {
 	hasIssues := false
 	for _, res := range results {
-		if res.HasUnsynced || res.HasUncommitted {
+		if res.HasUnsynced {
 			hasIssues = true
 			break
 		}
 	}
 
 	if !hasIssues && !cfg.ShowAll {
-		fmt.Println("No git repositories with unsynced status or uncommitted changes found.")
+		fmt.Println("No git repositories with unsynced status found.")
 		return
 	}
 
@@ -38,23 +38,19 @@ func PrintResults(results []types.RepoResult, cfg types.Config, logger *logger.L
 			continue
 		}
 
-		if !res.HasUnsynced && !res.HasUncommitted && !cfg.ShowAll {
+		// Skip if no unsynced branches and not showing all
+		if !res.HasUnsynced && !cfg.ShowAll {
 			continue
 		}
 
-		for _, b := range res.Branches {
-			line := formatBranchLine(res.Path, b, cfg.NoColor)
-			fmt.Println(line)
-		}
-
-		if res.HasUncommitted {
-			line := formatWorkdirLine(res.Path, res.Uncommitted, cfg.NoColor)
-			fmt.Println(line)
-		}
-
-		if cfg.ShowAll && !res.HasUnsynced && !res.HasUncommitted {
-			line := formatCleanRepoLine(res.Path, cfg.NoColor)
-			fmt.Println(line)
+		// Show branches if:
+		// - ShowAll is true (show all branches), OR
+		// - HasUnsynced is true (show only unsynced branches)
+		if cfg.ShowAll || res.HasUnsynced {
+			for _, b := range res.Branches {
+				line := formatBranchLine(res.Path, b, cfg.NoColor)
+				fmt.Println(line)
+			}
 		}
 	}
 }
@@ -109,39 +105,4 @@ func formatBranchLine(repoPath string, b types.BranchSyncStatus, noColor bool) s
 	}
 
 	return line
-}
-
-func formatWorkdirLine(repoPath string, w types.WorkdirStatus, noColor bool) string {
-	parts := []string{repoPath}
-
-	details := []string{}
-	if w.Modified > 0 {
-		details = append(details, fmt.Sprintf("modified %d", w.Modified))
-	}
-	if w.Staged > 0 {
-		details = append(details, fmt.Sprintf("staged %d", w.Staged))
-	}
-	if w.Untracked > 0 {
-		details = append(details, fmt.Sprintf("untracked %d", w.Untracked))
-	}
-
-	if len(details) > 0 {
-		parts = append(parts, fmt.Sprintf("(%s)", strings.Join(details, ", ")))
-	}
-
-	line := strings.Join(parts, " ")
-
-	if noColor {
-		return line
-	}
-
-	return ColorYellow + line + ColorReset
-}
-
-func formatCleanRepoLine(repoPath string, noColor bool) string {
-	line := repoPath + " (clean)"
-	if noColor {
-		return line
-	}
-	return ColorGreen + line + ColorReset
 }

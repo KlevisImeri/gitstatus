@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"gitstatus/src/logger"
+	"gitstatus/src/types"
 )
 
 func TestGetRepoStatusReal(t *testing.T) {
@@ -60,7 +61,7 @@ func TestGetRepoStatusReal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.repoName, func(t *testing.T) {
 			repoPath := filepath.Join(testEnv, tt.repoName)
-			result, err := GetRepoStatus(ctx, repoPath, logger)
+			result, err := GetRepoStatus(ctx, repoPath, logger, types.Config{})
 			if err != nil {
 				t.Fatalf("GetRepoStatus failed: %v", err)
 			}
@@ -91,64 +92,6 @@ func TestGetRepoStatusReal(t *testing.T) {
 				if !foundBranch {
 					t.Error("Expected to find a current branch")
 				}
-			}
-		})
-	}
-}
-
-func TestGetWorkdirStatusReal(t *testing.T) {
-	testEnv := setupTestRepos(t)
-	logger, _ := logger.NewLogger([]string{}, "")
-	ctx := context.Background()
-
-	tests := []struct {
-		repoName      string
-		wantModified  int
-		wantStaged    int
-		wantUntracked int
-	}{
-		{
-			repoName:      "repo_synced",
-			wantModified:  0,
-			wantStaged:    0,
-			wantUntracked: 0,
-		},
-		{
-			repoName:      "repo_modified",
-			wantModified:  1,
-			wantStaged:    0,
-			wantUntracked: 0,
-		},
-		{
-			repoName:      "repo_staged",
-			wantModified:  0,
-			wantStaged:    1,
-			wantUntracked: 0,
-		},
-		{
-			repoName:      "repo_untracked",
-			wantModified:  0,
-			wantStaged:    0,
-			wantUntracked: 1,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.repoName, func(t *testing.T) {
-			repoPath := filepath.Join(testEnv, tt.repoName)
-			status, err := GetWorkdirStatus(ctx, repoPath, logger)
-			if err != nil {
-				t.Fatalf("GetWorkdirStatus failed: %v", err)
-			}
-
-			if status.Modified != tt.wantModified {
-				t.Errorf("Modified = %d, want %d", status.Modified, tt.wantModified)
-			}
-			if status.Staged != tt.wantStaged {
-				t.Errorf("Staged = %d, want %d", status.Staged, tt.wantStaged)
-			}
-			if status.Untracked != tt.wantUntracked {
-				t.Errorf("Untracked = %d, want %d", status.Untracked, tt.wantUntracked)
 			}
 		})
 	}

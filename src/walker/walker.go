@@ -63,7 +63,7 @@ func Walk(
 			if fileInfo.IsDir() {
 				logger.Debug("Found git repo: %s", path)
 
-				result, repoErr := git.GetRepoStatus(ctx, path, logger)
+				result, repoErr := git.GetRepoStatus(ctx, path, logger, cfg)
 				if repoErr != nil {
 					logger.Error("Error getting repo status for %s: %v", path, repoErr)
 					callback(types.RepoResult{Path: path, Error: repoErr})

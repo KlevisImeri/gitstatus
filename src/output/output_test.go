@@ -88,20 +88,6 @@ func TestFormatBranchLineGone(t *testing.T) {
 	}
 }
 
-func TestFormatWorkdirLineModified(t *testing.T) {
-	w := types.WorkdirStatus{
-		Modified:  3,
-		Staged:    0,
-		Untracked: 0,
-	}
-
-	result := formatWorkdirLine("/repo", w, false)
-
-	if !strings.Contains(result, "modified 3") {
-		t.Error("Expected result to contain 'modified 3'")
-	}
-}
-
 // Integration tests using real repos
 
 func captureOutput(f func()) string {
@@ -126,7 +112,7 @@ func TestPrintResultsReal(t *testing.T) {
 
 	t.Run("CleanRepo_ShowAllFalse", func(t *testing.T) {
 		repoPath := filepath.Join(testEnv, "repo_synced")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger, types.Config{})
 
 		cfg := types.Config{ShowAll: false, NoColor: true}
 
@@ -141,7 +127,7 @@ func TestPrintResultsReal(t *testing.T) {
 
 	t.Run("CleanRepo_ShowAllTrue", func(t *testing.T) {
 		repoPath := filepath.Join(testEnv, "repo_synced")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger, types.Config{ShowAll: true})
 
 		cfg := types.Config{ShowAll: true, NoColor: true}
 
@@ -152,14 +138,11 @@ func TestPrintResultsReal(t *testing.T) {
 		if !strings.Contains(output, "repo_synced") {
 			t.Error("Should show clean repo when ShowAll=true")
 		}
-		if !strings.Contains(output, "(clean)") {
-			t.Error("Should indicate (clean)")
-		}
 	})
 
 	t.Run("RepoAhead", func(t *testing.T) {
 		repoPath := filepath.Join(testEnv, "repo_ahead")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger, types.Config{})
 
 		cfg := types.Config{ShowAll: false, NoColor: true}
 
@@ -177,7 +160,7 @@ func TestPrintResultsReal(t *testing.T) {
 
 	t.Run("RepoBehind", func(t *testing.T) {
 		repoPath := filepath.Join(testEnv, "repo_behind")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger, types.Config{})
 
 		cfg := types.Config{ShowAll: false, NoColor: true}
 
@@ -193,45 +176,9 @@ func TestPrintResultsReal(t *testing.T) {
 		}
 	})
 
-	t.Run("RepoModified", func(t *testing.T) {
-		repoPath := filepath.Join(testEnv, "repo_modified")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
-
-		cfg := types.Config{ShowAll: false, NoColor: true}
-
-		output := captureOutput(func() {
-			PrintResults([]types.RepoResult{*result}, cfg, logger)
-		})
-
-		if !strings.Contains(output, "repo_modified") {
-			t.Error("Should show repo_modified")
-		}
-		if !strings.Contains(output, "modified 1") {
-			t.Error("Should show 'modified 1'")
-		}
-	})
-
-	t.Run("RepoUntracked", func(t *testing.T) {
-		repoPath := filepath.Join(testEnv, "repo_untracked")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
-
-		cfg := types.Config{ShowAll: false, NoColor: true}
-
-		output := captureOutput(func() {
-			PrintResults([]types.RepoResult{*result}, cfg, logger)
-		})
-
-		if !strings.Contains(output, "repo_untracked") {
-			t.Error("Should show repo_untracked")
-		}
-		if !strings.Contains(output, "untracked 1") {
-			t.Error("Should show 'untracked 1'")
-		}
-	})
-
 	t.Run("RepoNoUpstream", func(t *testing.T) {
 		repoPath := filepath.Join(testEnv, "repo_no_upstream")
-		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger, types.Config{})
 
 		cfg := types.Config{ShowAll: false, NoColor: true}
 

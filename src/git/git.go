@@ -16,6 +16,7 @@ import (
 )
 
 // Regex to parse: * main a1b2c3d [origin/main: ahead 2, behind 1] Commit message
+// or: * main a1b2c3d [origin/main] Commit message
 // Groups: 1=Current(* or space), 2=BranchName, 3=RemoteInfo
 var branchLineRegex = regexp.MustCompile(`^([\* ])\s+(\S+)\s+\w+\s+\[([^\]]+)\]`)
 
@@ -23,7 +24,7 @@ var branchLineRegex = regexp.MustCompile(`^([\* ])\s+(\S+)\s+\w+\s+\[([^\]]+)\]`
 var aheadRegex = regexp.MustCompile(`ahead (\d+)`)
 var behindRegex = regexp.MustCompile(`behind (\d+)`)
 
-func GetRepoStatus(ctx context.Context, path string, logger *logger.Logger) (*types.RepoResult, error) {
+func GetRepoStatus(ctx context.Context, path string, logger *logger.Logger, cfg types.Config) (*types.RepoResult, error) {
 	logger.Debug("Analyzing branches in repo: %s", path)
 
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(defaults.DefaultGitCommandTimeoutSeconds)*time.Second)
@@ -51,22 +52,16 @@ func GetRepoStatus(ctx context.Context, path string, logger *logger.Logger) (*ty
 	}
 
 	for _, b := range branches {
-		if b.Ahead > 0 || b.Behind > 0 || b.Gone || b.NoUpstream {
-			result.HasUnsynced = true
+		if cfg.ShowAll || b.Ahead > 0 || b.Behind > 0 || b.Gone || b.NoUpstream {
+			if b.Ahead > 0 || b.Behind > 0 || b.Gone || b.NoUpstream {
+				result.HasUnsynced = true
+			}
 			result.Branches = append(result.Branches, b)
 		}
 	}
 
-	workdirStatus, err := GetWorkdirStatus(ctx, path, logger)
-	if err != nil {
-		logger.Error("Failed to get working directory status for %s: %v", path, err)
-	} else {
-		result.Uncommitted = workdirStatus
-		result.HasUncommitted = workdirStatus.Modified > 0 || workdirStatus.Staged > 0 || workdirStatus.Untracked > 0
-	}
-
-	logger.Debug("Repo %s: %d unsynced branches found, uncommitted: modified=%d staged=%d untracked=%d",
-		path, len(result.Branches), result.Uncommitted.Modified, result.Uncommitted.Staged, result.Uncommitted.Untracked)
+	logger.Debug("Repo %s: %d branches found (%d unsynced)",
+		path, len(result.Branches), len(result.Branches))
 	return result, nil
 }
 
@@ -146,49 +141,4 @@ func parseGitOutput(output string, logger *logger.Logger) ([]types.BranchSyncSta
 	}
 
 	return branches, nil
-}
-
-func GetWorkdirStatus(ctx context.Context, path string, logger *logger.Logger) (types.WorkdirStatus, error) {
-	logger.Debug("Checking working directory status for: %s", path)
-
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(defaults.DefaultGitCommandTimeoutSeconds)*time.Second)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, "git", "status", "--porcelain")
-	cmd.Dir = path
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return types.WorkdirStatus{}, fmt.Errorf("git status failed: %w", err)
-	}
-
-	status := types.WorkdirStatus{}
-	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		if len(line) < 2 {
-			continue
-		}
-
-		indexStatus := line[0]
-		worktreeStatus := line[1]
-
-		if indexStatus != ' ' && indexStatus != '?' {
-			status.Staged++
-		}
-
-		if worktreeStatus == 'M' {
-			status.Modified++
-		}
-
-		if indexStatus == '?' && worktreeStatus == '?' {
-			status.Untracked++
-		}
-	}
-
-	logger.Debug("Working directory status for %s: modified=%d staged=%d untracked=%d",
-		path, status.Modified, status.Staged, status.Untracked)
-
-	return status, nil
 }
