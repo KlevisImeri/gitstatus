@@ -50,19 +50,23 @@ func GetRepoStatus(ctx context.Context, path string, logger *logger.Logger) (*ty
 		Branches: []types.BranchSyncStatus{},
 	}
 
-	for _, b := range branches {
-		if b.Ahead > 0 || b.Behind > 0 || b.Gone || b.NoUpstream {
-			result.HasUnsynced = true
-			result.Branches = append(result.Branches, b)
-		}
-	}
-
 	workdirStatus, err := GetWorkdirStatus(ctx, path, logger)
+	hasUncommitted := false
 	if err != nil {
 		logger.Error("Failed to get working directory status for %s: %v", path, err)
 	} else {
 		result.Uncommitted = workdirStatus
-		result.HasUncommitted = workdirStatus.Modified > 0 || workdirStatus.Staged > 0 || workdirStatus.Untracked > 0
+		hasUncommitted = workdirStatus.Modified > 0 || workdirStatus.Staged > 0 || workdirStatus.Untracked > 0
+		result.HasUncommitted = hasUncommitted
+	}
+
+	for _, b := range branches {
+		if b.Ahead > 0 || b.Behind > 0 || b.Gone || b.NoUpstream {
+			result.HasUnsynced = true
+			result.Branches = append(result.Branches, b)
+		} else if b.Current && hasUncommitted {
+			result.Branches = append(result.Branches, b)
+		}
 	}
 
 	logger.Debug("Repo %s: %d unsynced branches found, uncommitted: modified=%d staged=%d untracked=%d",

@@ -246,4 +246,67 @@ func TestPrintResultsReal(t *testing.T) {
 			t.Error("Should show 'no upstream'")
 		}
 	})
+
+	t.Run("RepoModified_ShowsBranch", func(t *testing.T) {
+		repoPath := filepath.Join(testEnv, "repo_modified")
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+
+		cfg := types.Config{ShowAll: false, NoColor: true}
+
+		output := captureOutput(func() {
+			PrintResults([]types.RepoResult{*result}, cfg, logger)
+		})
+
+		if !strings.Contains(output, "repo_modified/master") {
+			t.Error("Should show branch info for repo_modified")
+		}
+		if !strings.Contains(output, "[current]") {
+			t.Error("Should show current branch indicator")
+		}
+		if !strings.Contains(output, "modified 1") {
+			t.Error("Should show 'modified 1'")
+		}
+	})
+
+	t.Run("RepoStaged_ShowsBranch", func(t *testing.T) {
+		repoPath := filepath.Join(testEnv, "repo_staged")
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+
+		cfg := types.Config{ShowAll: false, NoColor: true}
+
+		output := captureOutput(func() {
+			PrintResults([]types.RepoResult{*result}, cfg, logger)
+		})
+
+		if !strings.Contains(output, "repo_staged/master") {
+			t.Error("Should show branch info for repo_staged")
+		}
+		if !strings.Contains(output, "[current]") {
+			t.Error("Should show current branch indicator")
+		}
+		if !strings.Contains(output, "staged 1") {
+			t.Error("Should show 'staged 1'")
+		}
+	})
+
+	t.Run("RepoUntracked_ShowsBranch", func(t *testing.T) {
+		repoPath := filepath.Join(testEnv, "repo_untracked")
+		result, _ := git.GetRepoStatus(ctx, repoPath, logger)
+
+		cfg := types.Config{ShowAll: false, NoColor: true}
+
+		output := captureOutput(func() {
+			PrintResults([]types.RepoResult{*result}, cfg, logger)
+		})
+
+		if !strings.Contains(output, "repo_untracked/master") {
+			t.Error("Should show branch info for repo_untracked")
+		}
+		if !strings.Contains(output, "[current]") {
+			t.Error("Should show current branch indicator")
+		}
+		if !strings.Contains(output, "untracked 1") {
+			t.Error("Should show 'untracked 1'")
+		}
+	})
 }
